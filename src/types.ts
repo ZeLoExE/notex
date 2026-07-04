@@ -5,7 +5,6 @@ export interface Note {
   folderId: string | null;
   createdAt: number;
   updatedAt: number;
-  fontSize: number;
 }
 
 export interface Folder {

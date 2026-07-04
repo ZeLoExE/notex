@@ -1,9 +1,13 @@
-import { useRef, useCallback, useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import { TextStyle } from '@tiptap/extension-text-style';
+import Color from '@tiptap/extension-color';
+import TiptapImage from '@tiptap/extension-image';
 import { PenLine, FolderInput, FolderMinus, Trash2 } from 'lucide-react';
 import { EditorToolbar } from './EditorToolbar';
-import { ImageUploader } from './ImageUploader';
 import { EmptyState } from './EmptyState';
-import { useFontSize } from '../hooks/useFontSize';
+import { FontSize } from '../extensions/FontSize';
 import type { Note, Folder } from '../types';
 
 interface NoteEditorProps {
@@ -25,19 +29,47 @@ export function NoteEditor({
   onMoveNote,
   onDelete,
 }: NoteEditorProps) {
-  const contentRef = useRef<HTMLDivElement>(null);
-  const { applyFontSize, getCursorFontSize, captureSelection } = useFontSize();
   const [moveDropdownOpen, setMoveDropdownOpen] = useState(false);
   const moveDropdownRef = useRef<HTMLDivElement>(null);
+  const lastNoteIdRef = useRef<string | null>(null);
 
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      TextStyle,
+      Color,
+      FontSize,
+      TiptapImage.configure({
+        inline: true,
+        allowBase64: true,
+      }),
+    ],
+    content: note?.content || '',
+    editorProps: {
+      attributes: {
+        class: `min-h-[400px] outline-none leading-relaxed ${isDark ? 'text-gray-200' : 'text-gray-700'}`,
+      },
+    },
+    onUpdate: ({ editor }) => {
+      if (!note) return;
+      const html = editor.getHTML();
+      onDebouncedUpdate(note.id, { content: html });
+    },
+  });
+
+  // Sync editor content when active note changes
   useEffect(() => {
-    if (contentRef.current && note) {
-      if (contentRef.current.innerHTML !== note.content) {
-        contentRef.current.innerHTML = note.content;
+    if (!editor || !note) return;
+    if (note.id !== lastNoteIdRef.current) {
+      lastNoteIdRef.current = note.id;
+      const currentContent = editor.getHTML();
+      if (currentContent !== note.content) {
+        editor.commands.setContent(note.content || '');
       }
     }
-  }, [note?.id]);
+  }, [editor, note?.id, note?.content]);
 
+  // Click-outside for move dropdown
   useEffect(() => {
     if (!moveDropdownOpen) return;
     const close = (e: MouseEvent) => {
@@ -55,11 +87,6 @@ export function NoteEditor({
       document.removeEventListener('keydown', esc);
     };
   }, [moveDropdownOpen]);
-
-  const handleContentInput = useCallback(() => {
-    if (!note || !contentRef.current) return;
-    onDebouncedUpdate(note.id, { content: contentRef.current.innerHTML });
-  }, [note?.id, onDebouncedUpdate]);
 
   const handleDelete = () => {
     if (note && window.confirm('Delete this note?')) onDelete(note.id);
@@ -135,27 +162,15 @@ export function NoteEditor({
             className={`w-full text-3xl font-bold bg-transparent border-none outline-none mb-4 ${isDark ? 'text-white placeholder-gray-600' : 'text-gray-800 placeholder-gray-300'}`}
           />
 
-          <div className={`flex items-center gap-1 mb-4 pb-4 border-b ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
-            <EditorToolbar
-              isDark={isDark}
-              getCursorFontSize={getCursorFontSize}
-              onApplyFontSize={applyFontSize}
-              onTextColor={() => {}}
-            />
-            <div className={`w-px h-5 mx-1 ${isDark ? 'bg-white/10' : 'bg-gray-200'}`} />
-            <ImageUploader isDark={isDark} />
-          </div>
+          {editor && (
+            <>
+              <div className={`flex items-center gap-1 mb-4 pb-4 border-b ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
+                <EditorToolbar editor={editor} isDark={isDark} />
+              </div>
 
-          <div
-            ref={contentRef}
-            contentEditable
-            suppressContentEditableWarning
-            onInput={handleContentInput}
-            onMouseUp={captureSelection}
-            onKeyUp={captureSelection}
-            data-placeholder="Start writing..."
-            className={`min-h-[400px] outline-none leading-relaxed ${isDark ? 'text-gray-200 placeholder-gray-600' : 'text-gray-700 placeholder-gray-300'}`}
-          />
+              <EditorContent editor={editor} />
+            </>
+          )}
         </div>
       </div>
     </div>

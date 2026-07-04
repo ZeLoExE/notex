@@ -62,22 +62,32 @@ html:not(.dark) ::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.15);
 }
 
-/* Content editable styling */
-[contenteditable]:focus {
+/* Tiptap / ProseMirror editor */
+.tiptap {
   outline: none;
+  min-height: 400px;
 }
 
-[contenteditable]:empty::before {
+.tiptap p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
-  opacity: 0.4;
+  float: left;
+  color: #6b7280;
   pointer-events: none;
+  height: 0;
 }
 
-/* Ensure images in notes don't overflow */
-[contenteditable] img {
+html.dark .tiptap p.is-editor-empty:first-child::before {
+  color: #4b5563;
+}
+
+.tiptap img {
   max-width: 100%;
   border-radius: 0.5rem;
   margin: 0.5rem 0;
+}
+
+.tiptap p {
+  margin-bottom: 0.75rem;
 }
 
 /* Toast animation */

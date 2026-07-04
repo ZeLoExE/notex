@@ -49,7 +49,6 @@ export function useNotes() {
       folderId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-      fontSize: 16,
     };
     setNotes(prev => [newNote, ...prev]);
     setActiveNoteId(newNote.id);
@@ -139,7 +138,6 @@ export function useNotes() {
       folderId: null,
       createdAt: now,
       updatedAt: now,
-      fontSize: 16,
     }));
     setNotes(prev => [...newNotes, ...prev]);
     return newNotes.length;
