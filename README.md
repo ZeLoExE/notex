@@ -14,7 +14,7 @@
 - **Dark / Light theme** — dark mode by default, toggle to light mode with smooth transitions
 - **Folder organization** — create folders, drag-and-drop notes into them, or use the "Move to" menu
 - **Real-time search** — filters note titles and body text as you type
-- **Rich text editing** — bold, italic, underline, per-selection font size (8–72 px), and text color picker
+- **Rich text editing** — powered by Tiptap (ProseMirror): bold, italic, underline, per-selection font size (8–72 px), and text color picker
 - **Inline images** — insert images from your device directly into a note
 - **Note import** — import `.txt`, `.md`, and `.json` files via the native OS file dialog
 - **Auto-save** — every change is debounced and saved to localStorage automatically
@@ -26,6 +26,7 @@
 |-------|-----------|
 | Desktop shell | Electron |
 | UI | React 19 (functional components + hooks) |
+| Rich text | Tiptap (ProseMirror) |
 | Language | TypeScript |
 | Styling | TailwindCSS v4 |
 | Build | Vite 6 |
@@ -41,7 +42,7 @@ Grab the latest `.exe` installer from the [Releases](../../releases) page and ru
 ### Build from source
 
 ```bash
-git clone https://github.com/<your-username>/notex.git
+git clone https://github.com/ZeLoExE/notex.git
 cd notex
 npm install
 npm run dist
