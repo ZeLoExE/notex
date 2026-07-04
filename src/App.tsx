@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { useTheme } from './hooks/useTheme';
 import { useNotes } from './hooks/useNotes';
 import { Sidebar } from './components/Sidebar';
@@ -91,6 +92,9 @@ export default function App() {
   } = useNotes();
 
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    return localStorage.getItem('notex_sidebar_collapsed') === 'true';
+  });
   const toastIdRef = { current: 0 };
 
   const showToast = useCallback((message: string, type: 'success' | 'error') => {
@@ -99,6 +103,14 @@ export default function App() {
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
     }, 3000);
+  }, []);
+
+  const toggleSidebar = useCallback(() => {
+    setSidebarCollapsed(prev => {
+      const next = !prev;
+      localStorage.setItem('notex_sidebar_collapsed', String(next));
+      return next;
+    });
   }, []);
 
   const handleImport = useCallback(async () => {
@@ -167,26 +179,55 @@ export default function App() {
     <div className="flex flex-col h-full">
       <TitleBar isDark={isDark} />
 
-      <div className="flex flex-1 min-h-0">
-        <Sidebar
-          notes={notes}
-          folders={folders}
-          activeNoteId={activeNoteId}
-          searchQuery={searchQuery}
-          expandedFolders={expandedFolders}
-          isDark={isDark}
-          onSearchChange={setSearchQuery}
-          onCreateNote={() => createNote()}
-          onCreateFolder={createFolder}
-          onImport={handleImport}
-          onSelectNote={setActiveNoteId}
-          onDeleteNote={deleteNote}
-          onMoveNote={moveNote}
-          onToggleFolder={toggleFolder}
-          onRenameFolder={renameFolder}
-          onDeleteFolder={deleteFolder}
-          onToggleTheme={toggleTheme}
-        />
+      <div className="flex flex-1 min-h-0 relative">
+        {/* Sidebar with CSS transition */}
+        <div
+          className="shrink-0 overflow-hidden"
+          style={{
+            width: sidebarCollapsed ? 0 : 288,
+            transition: 'width 280ms cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
+        >
+          <Sidebar
+            notes={notes}
+            folders={folders}
+            activeNoteId={activeNoteId}
+            searchQuery={searchQuery}
+            expandedFolders={expandedFolders}
+            isDark={isDark}
+            collapsed={sidebarCollapsed}
+            onToggleCollapse={toggleSidebar}
+            onSearchChange={setSearchQuery}
+            onCreateNote={() => createNote()}
+            onCreateFolder={createFolder}
+            onImport={handleImport}
+            onSelectNote={setActiveNoteId}
+            onDeleteNote={deleteNote}
+            onMoveNote={moveNote}
+            onToggleFolder={toggleFolder}
+            onRenameFolder={renameFolder}
+            onDeleteFolder={deleteFolder}
+            onToggleTheme={toggleTheme}
+          />
+        </div>
+
+        {/* Floating expand button when sidebar is collapsed */}
+        {sidebarCollapsed && (
+          <button
+            onClick={toggleSidebar}
+            className={`
+              absolute top-2 left-2 z-50 p-2 rounded-lg
+              transition-colors duration-200 cursor-pointer
+              ${isDark
+                ? 'bg-white/10 hover:bg-white/20 text-gray-400 hover:text-gray-200'
+                : 'bg-black/5 hover:bg-black/10 text-gray-500 hover:text-gray-700'}
+            `}
+            title="Expand sidebar"
+          >
+            <PanelLeftOpen size={18} />
+          </button>
+        )}
+
         <NoteEditor
           note={activeNote}
           folders={folders}

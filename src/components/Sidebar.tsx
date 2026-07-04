@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { FileText, FolderPlus, Plus, SearchX, Upload, Inbox } from 'lucide-react';
+import { FileText, FolderPlus, Plus, SearchX, Upload, Inbox, PanelLeftClose } from 'lucide-react';
 import { SearchBar } from './SearchBar';
 import { FolderItem } from './FolderItem';
 import { NoteListItem } from './NoteListItem';
@@ -14,6 +14,8 @@ interface SidebarProps {
   searchQuery: string;
   expandedFolders: Set<string>;
   isDark: boolean;
+  collapsed: boolean;
+  onToggleCollapse: () => void;
   onSearchChange: (query: string) => void;
   onCreateNote: () => void;
   onCreateFolder: () => void;
@@ -34,6 +36,8 @@ export function Sidebar({
   searchQuery,
   expandedFolders,
   isDark,
+  collapsed,
+  onToggleCollapse,
   onSearchChange,
   onCreateNote,
   onCreateFolder,
@@ -119,20 +123,33 @@ export function Sidebar({
   return (
     <aside
       className={`
-        w-72 h-full flex flex-col shrink-0 transition-colors duration-300
+        h-full flex flex-col shrink-0 transition-colors duration-300
         ${isDark ? 'glass-dark' : 'glass-light'}
       `}
+      style={{ width: 288 }}
     >
       {/* Header */}
       <div className="p-4 pb-2">
-        <h1
-          className={`
-            text-lg font-bold mb-4 tracking-tight
-            ${isDark ? 'text-white' : 'text-gray-800'}
-          `}
-        >
-          NoTex
-        </h1>
+        <div className="flex items-center justify-between mb-4">
+          <h1
+            className={`
+              text-lg font-bold tracking-tight
+              ${isDark ? 'text-white' : 'text-gray-800'}
+            `}
+          >
+            NoTex
+          </h1>
+          <button
+            onClick={onToggleCollapse}
+            className={`
+              p-1.5 rounded-lg transition-colors duration-200 cursor-pointer
+              ${isDark ? 'hover:bg-white/10 text-gray-500 hover:text-gray-300' : 'hover:bg-black/5 text-gray-400 hover:text-gray-600'}
+            `}
+            title="Collapse sidebar"
+          >
+            <PanelLeftClose size={16} />
+          </button>
+        </div>
 
         <SearchBar
           value={searchQuery}
