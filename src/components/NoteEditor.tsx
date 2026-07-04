@@ -14,6 +14,7 @@ interface NoteEditorProps {
   note: Note | null;
   folders: Folder[];
   isDark: boolean;
+  sidebarCollapsed: boolean;
   onUpdate: (id: string, updates: Partial<Omit<Note, 'id' | 'createdAt'>>) => void;
   onDebouncedUpdate: (id: string, updates: Partial<Omit<Note, 'id' | 'createdAt'>>) => void;
   onMoveNote: (noteId: string, folderId: string | null) => void;
@@ -24,6 +25,7 @@ export function NoteEditor({
   note,
   folders,
   isDark,
+  sidebarCollapsed,
   onUpdate,
   onDebouncedUpdate,
   onMoveNote,
@@ -109,7 +111,7 @@ export function NoteEditor({
   return (
     <div className="flex-1 flex flex-col min-w-0 h-full">
       {/* Top bar */}
-      <div className={`flex items-center justify-between px-6 py-3 border-b ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
+      <div className={`flex items-center justify-between py-3 border-b ${isDark ? 'border-white/10' : 'border-gray-200'} ${sidebarCollapsed ? 'pl-16 pr-6' : 'px-6'}`}>
         <div className="flex items-center gap-3">
           {currentFolder && (
             <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${isDark ? 'bg-purple-500/15 text-purple-300 border border-purple-500/20' : 'bg-blue-500/10 text-blue-600 border border-blue-500/20'}`}>

@@ -232,6 +232,7 @@ export default function App() {
           note={activeNote}
           folders={folders}
           isDark={isDark}
+          sidebarCollapsed={sidebarCollapsed}
           onUpdate={updateNote}
           onDebouncedUpdate={debouncedUpdateNote}
           onMoveNote={moveNote}
