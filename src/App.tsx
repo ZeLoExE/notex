@@ -95,6 +95,10 @@ export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     return localStorage.getItem('notex_sidebar_collapsed') === 'true';
   });
+  // Delayed state for the floating button — synced to sidebar animation end
+  const [showFloatingBtn, setShowFloatingBtn] = useState(() => {
+    return localStorage.getItem('notex_sidebar_collapsed') === 'true';
+  });
   const toastIdRef = { current: 0 };
 
   const showToast = useCallback((message: string, type: 'success' | 'error') => {
@@ -109,6 +113,13 @@ export default function App() {
     setSidebarCollapsed(prev => {
       const next = !prev;
       localStorage.setItem('notex_sidebar_collapsed', String(next));
+      if (next) {
+        // Collapsing: start animation now, show floating button after it finishes
+        setTimeout(() => setShowFloatingBtn(true), 280);
+      } else {
+        // Expanding: hide floating button immediately, then animate sidebar open
+        setShowFloatingBtn(false);
+      }
       return next;
     });
   }, []);
@@ -211,13 +222,14 @@ export default function App() {
           />
         </div>
 
-        {/* Floating expand button when sidebar is collapsed */}
-        {sidebarCollapsed && (
+        {/* Floating expand button — appears after collapse animation finishes */}
+        {showFloatingBtn && (
           <button
             onClick={toggleSidebar}
             className={`
               absolute top-2 left-2 z-50 p-2 rounded-lg
-              transition-colors duration-200 cursor-pointer
+              transition-all duration-200 cursor-pointer
+              animate-[fadeIn_200ms_ease]
               ${isDark
                 ? 'bg-white/10 hover:bg-white/20 text-gray-400 hover:text-gray-200'
                 : 'bg-black/5 hover:bg-black/10 text-gray-500 hover:text-gray-700'}
